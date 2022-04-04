@@ -1,0 +1,19 @@
+ELSE IF @Type = 'S'
+BEGIN
+	declare @ColTitle as varchar(8000)
+
+	SELECT @ColTitle=isnull(@ColTitle,'')+ 'isnull('+ column_name + case when DATA_TYPE ='numeric' then ',0)' else ','''')' end  +' as '+ column_name + ',' FROM INFORMATION_SCHEMA.COLUMNS  
+	WHERE TABLE_NAME = 'Master_Visitor'
+	SET @ColTitle = reverse(stuff(reverse(@ColTitle), 1, 1, ''))
+	
+	--Select Visitor_ID, Visitor_Name, ISNULL(V_Company_ID, 0) as V_Company_ID, Visitor_Mobile,
+	--Visitor_Gender, Visitor_Email, Photo, ISNULL(Cmp_ID, 0) as Cmp_ID
+	DECLARE @sqlQuery as varchar (8000)
+	SET @sqlQuery = 
+	'SELECT ' + @ColTitle +
+	' FROM Master_Visitor WHERE
+	(' + CAST(@Visitor_ID as varchar(20)) +' = 0 OR Visitor_ID = ' + CAST(@Visitor_ID as varchar(20)) + ')
+	AND ( '+ CAST(@Cmp_ID as varchar(20)) + '= 0 OR Cmp_ID = ' + CAST(@Cmp_ID as varchar(20)) + ')'
+
+	exec(@sqlQuery)
+END
